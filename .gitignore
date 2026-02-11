@@ -32,3 +32,4 @@ msbuild.wrn
 
 # dmd 
 Properties/launchSettings.json
+node_modules/

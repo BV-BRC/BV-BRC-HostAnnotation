@@ -6,16 +6,16 @@ GO
 -- ==========================================================================================================
 -- Author: don dempsey
 -- Created on: 02/22/24
--- Description: Search the taxon_name table for the specified host's host tokens.
--- Updated: 
+-- Description: Create host name/taxon name matches for a host's tokens.
+-- Updated: 03/17/26 dmd: Renamed from "searchTaxonName".
 -- ==========================================================================================================
 
 -- Delete any existing versions.
-IF OBJECT_ID('dbo.searchTaxonName') IS NOT NULL
-	DROP PROCEDURE dbo.searchTaxonName
+IF OBJECT_ID('dbo.createHostnameTaxonMatches') IS NOT NULL
+	DROP PROCEDURE dbo.createHostnameTaxonMatches
 GO
 
-CREATE PROCEDURE dbo.searchTaxonName
+CREATE PROCEDURE dbo.createHostnameTaxonMatches
 	@hostID AS INT
 AS
 BEGIN

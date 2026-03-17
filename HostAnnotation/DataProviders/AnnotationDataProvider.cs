@@ -1,14 +1,14 @@
 ﻿
-using System.Data;
-using System.Data.SqlClient;
-using System.Text;
-
 using HostAnnotation.Common;
 using HostAnnotation.Models;
 using HostAnnotation.Utilities;
 using Newtonsoft.Json.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text;
 using static HostAnnotation.Common.Names;
 using static HostAnnotation.Common.Terms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HostAnnotation.DataProviders {
 
@@ -31,6 +31,15 @@ namespace HostAnnotation.DataProviders {
             DbQueryManager.runStoredProcedure(_dbConnectionString, "dbo.createAnnotatedHost", parameters);
         }
 
+        // Create host name/taxon name matches for a host's tokens.
+        public void createHostnameTaxonMatches(int hostID_) {
+
+            var parameters = new List<SqlParameter>() {
+                Utils.createSqlParam("@hostID", SqlDbType.Int, hostID_)
+            };
+
+            DbQueryManager.runStoredProcedure(_dbConnectionString, "dbo.createHostnameTaxonMatches", parameters);
+        }
 
         public void createHostTokenAnnotations(int? algorithmID_, int hostID_) {
 
@@ -78,6 +87,61 @@ namespace HostAnnotation.DataProviders {
         }
 
 
+        /*
+        // Populate the hosts filtered_text using its text value.
+        public void filterHostTextByGroup(int groupID_) {
+
+            var sql = @$"UPDATE hosts SET filtered_text =
+                REPLACE(
+                    REPLACE(
+                        REPLACE(
+                            REPLACE(
+                                REPLACE(
+                                    REPLACE(
+                                        REPLACE(
+                                            REPLACE(
+                                                REPLACE(
+                                                    REPLACE(
+                                                        REPLACE(
+                                                            REPLACE(
+                                                                REPLACE(lower(text), '''', '')
+                                                            , '  ', ' ')
+                                                        , '_', ' ')
+                                                    , '""', '')
+                                                , '`', '')
+                                            , '!', '')
+                                        , '.', '')
+                                    , '?', '')
+                                , '(', ',')
+                            , ')', ',')
+                        , ':', ',')
+                    , ';', ',')
+                , '-', ' ')
+
+            where group_id = {groupID_} ";
+
+            DbQueryManager.update(_dbConnectionString, sql);
+        } */
+
+        
+        // Update the host's "is processed" attribute.
+        public void updateIsProcessed(int hostID_, bool isProcessed_) {
+            int value = isProcessed_ ? 1 : 0;
+            DbQueryManager.update(_dbConnectionString, $"UPDATE hosts SET is_processed = {value} WHERE id = {hostID_} ");
+        }
+
+        // Update the host's "is valid" and (optional) "message" attributes.
+        public void updateIsValid(int hostID_, bool isValid_, string? message_ = null) {
+
+            var parameters = new List<SqlParameter>() {
+                Utils.createSqlParam("@message", SqlDbType.NVarChar, message_)
+            };
+
+            var value = isValid_ ? 1 : 0;
+
+            DbQueryManager.update(_dbConnectionString, $"UPDATE hosts SET is_valid = {value}, message = @message WHERE id = {hostID_} ", parameters);
+        }
+
         public AnnotatedHost? getAnnotatedHost(int hostID_) {
 
             AnnotatedHost? annotatedHost = null;
@@ -92,6 +156,32 @@ namespace HostAnnotation.DataProviders {
             return annotatedHost;
         }
 
+        public List<Host>? getHostsByGroup(int groupID_, int? maxHosts_, bool unprocessed_) {
+
+            List<Host>? hosts = null;
+
+            var limitText = maxHosts_ == null 
+                ? "" 
+                : $"TOP {maxHosts_.Value}";
+
+            var sql = new StringBuilder();
+            sql.AppendLine($"SELECT {limitText}");
+            sql.AppendLine("    id, ");
+            sql.AppendLine("    filtered_text, ");
+            sql.AppendLine("    text ");
+            sql.AppendLine("FROM hosts ");
+            sql.AppendLine($"WHERE group_id = {groupID_} ");
+            sql.AppendLine("AND is_valid = 1 ");
+
+            // If "unprocessed" is true, only retrieve unprocessed hosts.
+            if (unprocessed_) { sql.AppendLine("AND is_processed = 0 "); }
+
+            sql.AppendLine("ORDER BY text ");
+
+            UsefulObject.get<Host>(_dbConnectionString, sql.ToString(), ref hosts);
+
+            return hosts;
+        }
 
         public List<HostTaxonMatch>? getHostTaxaMatches(int hostID_) {
 
@@ -181,15 +271,6 @@ namespace HostAnnotation.DataProviders {
             return annotatedHosts;
         }
 
-
-        public void searchTaxonName(int hostID_) {
-
-            var parameters = new List<SqlParameter>() {
-                Utils.createSqlParam("@hostID", SqlDbType.Int, hostID_)
-            };
-
-            DbQueryManager.runStoredProcedure(_dbConnectionString, "dbo.searchTaxonName", parameters);
-        }
 
     }
 }

@@ -18,6 +18,7 @@ namespace HostAnnotation.Services {
 
         // C-tor
         public CuratedWordService(IOptions<DatabaseOptions> dbOptions) {
+            
             _dbOptions = dbOptions?.Value ?? throw new ArgumentNullException(nameof(dbOptions));
 
             // Get and validate the database connection string.

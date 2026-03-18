@@ -3,15 +3,19 @@ using HostAnnotation.DataProviders;
 using HostAnnotation.Models;
 using HostAnnotation.Utilities;
 using Microsoft.Extensions.Configuration;
-using System.Text;
-using static HostAnnotation.Common.Names;
+using Microsoft.Extensions.Options;
+//using System.Text;
+//using static HostAnnotation.Common.Names;
 
 namespace HostAnnotation.Services {
 
     public class AnnotationService : IAnnotationService {
 
         // The configuration properties.
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
+
+        // The database options.
+        private readonly DatabaseOptions _dbOptions;
 
         // The data provider for annotation data.
         protected AnnotationDataProvider _dataProvider;
@@ -21,12 +25,12 @@ namespace HostAnnotation.Services {
 
 
         // C-tor
-        public AnnotationService(IConfiguration configuration_, ICuratedWordService wordService_) {
+        public AnnotationService(IOptions<DatabaseOptions> dbOptions, ICuratedWordService wordService_) {
 
-            _configuration = configuration_;
+            _dbOptions = dbOptions?.Value ?? throw new ArgumentNullException(nameof(dbOptions));
 
             // Get and validate the database connection string.
-            string? dbConnectionString = _configuration[Names.ConfigKey.DbConnectionString];
+            string? dbConnectionString = _dbOptions.ConnectionString;
             if (string.IsNullOrEmpty(dbConnectionString)) { throw new Exception("Invalid database connection string"); }
 
             // Initialize the data provider
@@ -35,7 +39,6 @@ namespace HostAnnotation.Services {
             // A service for curated words.
             _wordService = wordService_;
         }
-
 
 
         // Annotate all hosts with this group ID. If "unprocessed" is true, only annotate hosts that 
@@ -51,7 +54,7 @@ namespace HostAnnotation.Services {
             CuratedWords? curatedWords = _wordService.getCuratedWords();
             if (curatedWords == null) { throw new Exception("Invalid curated words"); }
 
-            List<Host>? hosts = _dataProvider.getHostsByGroup(groupID_, maxHosts_, unprocessed_);
+            List<HostQuery>? hosts = _dataProvider.getHostsByGroup(groupID_, maxHosts_, unprocessed_);
             if (hosts == null || hosts.Count < 1) {
                 var unprocessedText = unprocessed_ ? "unprocessed " : "";
                 throw SmartException.create($"No {unprocessedText}hosts found with group ID {groupID_}");
@@ -81,6 +84,10 @@ namespace HostAnnotation.Services {
                     _dataProvider.updateIsValid(host.id, false, "Invalid text after removing age/date text");
                     continue;
                 }
+
+                // Remove leading and trailing commas.
+                if (filteredText.StartsWith(",")) { filteredText = filteredText.Substring(1); }
+                if (filteredText.EndsWith(",")) { filteredText = filteredText.Substring(0, filteredText.Length - 1); }
 
                 // Split the filtered host text on commas.
                 string[] tokens = filteredText.Split(Constants.DELIMITER_COMMA, StringSplitOptions.RemoveEmptyEntries);
@@ -121,9 +128,8 @@ namespace HostAnnotation.Services {
                     bool foundAltOrSynonym = false;
 
                     string? altOrSynonym = curatedWords.replaceAltSpellingsAndSynonyms(trimmedToken, ref foundAltOrSynonym);
-                    //if (string.IsNullOrEmpty(altOrSynonym)) { continue; }
 
-                    // If no alt spellings or synonyms were found in the trimmed token but stop words were found, look for 
+                    // If no alt spellings or synonyms were found in the trimmed token but we found stop words, look for 
                     // alt spellings or synonyms in the token without stop words.
                     if (!foundAltOrSynonym && foundStopWord && !string.IsNullOrEmpty(stopWordsRemoved)) {
                         altOrSynonym = curatedWords.replaceAltSpellingsAndSynonyms(stopWordsRemoved, ref foundAltOrSynonym);
@@ -141,6 +147,11 @@ namespace HostAnnotation.Services {
 
                 // Create the annotated host.
                 _dataProvider.createAnnotatedHost(host.id);
+
+                // The host has been successfully processed.
+                _dataProvider.updateProcessedHost(filteredText, host.id);
+
+                hostCount++;
             }
 
             return hostCount;

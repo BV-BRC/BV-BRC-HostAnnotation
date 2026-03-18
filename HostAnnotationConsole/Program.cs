@@ -1,28 +1,36 @@
 ﻿
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using HostAnnotation.Common;
 using HostAnnotation.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 internal class Program {
 
     private static async Task Main(string[] args) {
 
         if (args == null || args.Length < 1) {
-            PrintUsage();
+            printUsage();
             return;
         }
 
         // Get and validate the action code.
         string? actionCode = args[0];
         if (string.IsNullOrEmpty(actionCode)) {
-            PrintUsage();
+            printUsage();
             return;
+        } else {
+            actionCode = actionCode.Trim().ToLower();
         }
+
+        // Print start timestamp
+        var startedAt = DateTime.Now;
+        Console.WriteLine($"Started on {startedAt:MM/dd/yy} at {startedAt:h:mmtt}");
 
         using IHost host = Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) => {
+
+                // Bind Database section to DatabaseOptions and register IOptions<DatabaseOptions>.
+                services.Configure<DatabaseOptions>(context.Configuration.GetSection("Database"));
 
                 // Add the account service.
                 services.AddSingleton<IAccountService, AccountService>();
@@ -47,65 +55,68 @@ internal class Program {
             })
             .Build();
 
-        var config = host.Services.GetRequiredService<IConfiguration>();
-        Console.WriteLine($"Database connection string: '{config[HostAnnotation.Common.Names.ConfigKey.DbConnectionString] ?? "<null>"}'");
+        // Uncomment when debugging the db connection string.
+        //var config = host.Services.GetRequiredService<IConfiguration>();
+        //Console.WriteLine($"Database connection string: '{config[Names.ConfigKey.DbConnectionString] ?? "<null>"}'");
 
-        // Start the host so hosted services (if any) are started.
+        // Start the host to start hosted services.
         await host.StartAsync();
 
-        
-        
-        if (string.Equals(actionCode, "annotate_host_group", StringComparison.OrdinalIgnoreCase)) {
-            // Parse action-specific arguments (exclude actionCode itself)
-            var parseResult = ParseAnnotateHostGroupArgs(args.Skip(1).ToArray());
-            if (!parseResult.success) {
-                PrintUsage();
-                await host.StopAsync();
-                return;
-            }
+        // Run the synchronous work on the thread-pool to avoid blocking the caller thread.
+        var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            // Print start timestamp
-            var startedAt = DateTime.Now;
-            Console.WriteLine($"Started on {startedAt:MM/dd/yy} at {startedAt:h:mmtt}".ToLower());
+        switch (actionCode) {
 
-            // Resolve the service and run the work
-            using var scope = host.Services.CreateScope();
-            var annotationService = scope.ServiceProvider.GetRequiredService<IAnnotationService>();
+            case Names.ConsoleActionCode.AnnotateHostGroup:
 
-            // Run the synchronous work on the thread-pool to avoid blocking the caller thread.
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            await Task.Run(() => annotationService.annotateHostGroup(parseResult.groupId, parseResult.maxHosts, parseResult.unprocessed));
-            sw.Stop();
+                int hostCount = await annotateHostGroup(args, host);
 
-            var endedAt = DateTime.Now;
-            var elapsed = sw.Elapsed;
-            string elapsedText;
-            if (elapsed.TotalHours >= 1.0) {
-                elapsedText = $"{elapsed.TotalHours:F1} hours";
-            } else {
-                elapsedText = $"{elapsed.TotalMinutes:F0} minutes";
-            }
+                Console.WriteLine($"Hosts processed: {hostCount}");
 
-            Console.WriteLine($"Ended on {endedAt:MM/dd/yy} at {endedAt:h:mmtt}".ToLower() + $" (total running time: {elapsedText})");
-        } else {
-            Console.WriteLine($"Unknown action: {actionCode}");
-            PrintUsage();
+                break;
+
+            default:
+                Console.WriteLine($"Unknown action: {actionCode}");
+                printUsage();
+                break;
         }
+
+        // Stop the stopwatch and write the elapsed time to stdout.
+        sw.Stop();
+        printElapsedTime(sw);
 
         await host.StopAsync();
     }
 
-    private static void PrintUsage() {
-        Console.WriteLine("Usage:");
-        Console.WriteLine("  HostAnnotationConsole annotate_host_group group_id=<id> [max_hosts=<n>] [--unprocessed]");
-        Console.WriteLine();
-        Console.WriteLine("Examples:");
-        Console.WriteLine("  HostAnnotationConsole annotate_host_group group_id=123");
-        Console.WriteLine("  HostAnnotationConsole annotate_host_group group_id=123 max_hosts=50 --unprocessed");
-        Console.WriteLine("  HostAnnotationConsole annotate_host_group 123 50 --unprocessed   (positional supported)");
+    // Call the AnnotationService.annotateHostGroup method.
+    private static async Task<int> annotateHostGroup(string[] args_, IHost host_) {
+
+        int hostCount = 0;
+
+        // Parse action-specific arguments (excluding actionCode).
+        var parseResult = parseAnnotateHostGroupArgs(args_.Skip(1).ToArray());
+        if (!parseResult.success) {
+            printUsage();
+            await host_.StopAsync();
+            return 0;
+        }
+
+        // Resolve the service
+        using var scope = host_.Services.CreateScope();
+        var annotationService = scope.ServiceProvider.GetRequiredService<IAnnotationService>();
+
+        // Run the synchronous work on the thread-pool to avoid blocking the caller thread.
+        await Task.Run(() => 
+            hostCount = annotationService.annotateHostGroup(parseResult.groupId, parseResult.maxHosts, parseResult.unprocessed)
+        );
+
+        return hostCount;
     }
 
-    private static (bool success, int groupId, int? maxHosts, bool unprocessed) ParseAnnotateHostGroupArgs(string[] args) {
+
+    // Parse parameters for annotateHostGroup from the command line arguments.
+    private static (bool success, int groupId, int? maxHosts, bool unprocessed) parseAnnotateHostGroupArgs(string[] args) {
+
         int? groupId = null;
         int? maxHosts = null;
         bool unprocessed = false;
@@ -151,4 +162,37 @@ internal class Program {
 
         return (true, groupId.Value, maxHosts, unprocessed);
     }
+
+    private static void printElapsedTime(System.Diagnostics.Stopwatch sw_) {
+
+        var endedAt = DateTime.Now;
+        var elapsed = sw_.Elapsed;
+        string elapsedText = "";
+
+        if (elapsed.Days > 0) {
+            elapsedText += elapsed.Days == 1 ? "1 day" : $"{elapsed.Days} days";
+        }
+        if (elapsed.Hours > 0) {
+            if (elapsedText.Length > 0) { elapsedText += ", "; }
+            elapsedText += elapsed.Hours == 1 ? "1 hour" : $"{elapsed.Hours} hours";
+        }
+        if (elapsed.Minutes > 0) {
+            if (elapsedText.Length > 0) { elapsedText += ", "; }
+            elapsedText += elapsed.Minutes == 1 ? "1 minute" : $"{elapsed.Minutes} minutes";
+        }
+
+        Console.WriteLine($"Ended on {endedAt:MM/dd/yy} at {endedAt:h:mmtt} (total running time: {elapsedText})");
+    }
+
+    private static void printUsage() {
+        Console.WriteLine("Usage:");
+        Console.WriteLine("  HostAnnotationConsole annotate_host_group group_id=<id> [max_hosts=<n>] [--unprocessed]");
+        Console.WriteLine();
+        Console.WriteLine("Examples:");
+        Console.WriteLine("  HostAnnotationConsole annotate_host_group group_id=123");
+        Console.WriteLine("  HostAnnotationConsole annotate_host_group group_id=123 max_hosts=50 --unprocessed");
+        Console.WriteLine("  HostAnnotationConsole annotate_host_group 123 50 --unprocessed   (positional supported)");
+    }
+
+    
 }

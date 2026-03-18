@@ -7,7 +7,7 @@ using HostAnnotation.Utilities;
 
 namespace HostAnnotation.Models {
 
-    public class Host : UsefulObject {
+    public class HostQuery : UsefulObject {
 
         [Useful("filtered_text", false)]
         public string? filteredText { get; set; }

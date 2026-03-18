@@ -123,24 +123,6 @@ namespace HostAnnotation.DataProviders {
             DbQueryManager.update(_dbConnectionString, sql);
         } */
 
-        
-        // Update the host's "is processed" attribute.
-        public void updateIsProcessed(int hostID_, bool isProcessed_) {
-            int value = isProcessed_ ? 1 : 0;
-            DbQueryManager.update(_dbConnectionString, $"UPDATE hosts SET is_processed = {value} WHERE id = {hostID_} ");
-        }
-
-        // Update the host's "is valid" and (optional) "message" attributes.
-        public void updateIsValid(int hostID_, bool isValid_, string? message_ = null) {
-
-            var parameters = new List<SqlParameter>() {
-                Utils.createSqlParam("@message", SqlDbType.NVarChar, message_)
-            };
-
-            var value = isValid_ ? 1 : 0;
-
-            DbQueryManager.update(_dbConnectionString, $"UPDATE hosts SET is_valid = {value}, message = @message WHERE id = {hostID_} ", parameters);
-        }
 
         public AnnotatedHost? getAnnotatedHost(int hostID_) {
 
@@ -156,9 +138,9 @@ namespace HostAnnotation.DataProviders {
             return annotatedHost;
         }
 
-        public List<Host>? getHostsByGroup(int groupID_, int? maxHosts_, bool unprocessed_) {
+        public List<HostQuery>? getHostsByGroup(int groupID_, int? maxHosts_, bool unprocessed_) {
 
-            List<Host>? hosts = null;
+            List<HostQuery>? hosts = null;
 
             var limitText = maxHosts_ == null 
                 ? "" 
@@ -166,9 +148,9 @@ namespace HostAnnotation.DataProviders {
 
             var sql = new StringBuilder();
             sql.AppendLine($"SELECT {limitText}");
-            sql.AppendLine("    id, ");
-            sql.AppendLine("    filtered_text, ");
-            sql.AppendLine("    text ");
+            sql.AppendLine("   id, ");
+            sql.AppendLine("   filtered_text, ");
+            sql.AppendLine("   text ");
             sql.AppendLine("FROM hosts ");
             sql.AppendLine($"WHERE group_id = {groupID_} ");
             sql.AppendLine("AND is_valid = 1 ");
@@ -178,7 +160,7 @@ namespace HostAnnotation.DataProviders {
 
             sql.AppendLine("ORDER BY text ");
 
-            UsefulObject.get<Host>(_dbConnectionString, sql.ToString(), ref hosts);
+            UsefulObject.get<HostQuery>(_dbConnectionString, sql.ToString(), ref hosts);
 
             return hosts;
         }
@@ -271,6 +253,35 @@ namespace HostAnnotation.DataProviders {
             return annotatedHosts;
         }
 
+        // Update the host's "is valid" and (optional) "messages" attributes.
+        public void updateIsValid(int hostID_, bool isValid_, string? messages_ = null) {
 
+            var parameters = new List<SqlParameter>() {
+                Utils.createSqlParam("@messages", SqlDbType.NVarChar, messages_)
+            };
+
+            var value = isValid_ ? 1 : 0;
+
+            DbQueryManager.update(_dbConnectionString, $"UPDATE hosts SET is_valid = {value}, messages = @messages WHERE id = {hostID_} ", parameters);
+        }
+
+        public void updateProcessedHost(string filteredText_, int hostID_) {
+
+            // TODO: We should probably raise an exception if the filtered text is empty.
+            if (string.IsNullOrEmpty(filteredText_)) { return; }
+
+            var parameters = new List<SqlParameter>() {
+                Utils.createSqlParam("@filteredText", SqlDbType.NVarChar, filteredText_)
+            };
+
+            var sql = new StringBuilder();
+            sql.AppendLine("UPDATE hosts SET ");
+            sql.AppendLine("filtered_text = @filteredText, ");
+            sql.AppendLine("is_processed = 1, ");
+            sql.AppendLine("processed_on = SYSDATETIMEOFFSET() ");
+            sql.AppendLine($"WHERE id = {hostID_} ");
+
+            DbQueryManager.update(_dbConnectionString, sql.ToString(), parameters);
+        }
     }
 }

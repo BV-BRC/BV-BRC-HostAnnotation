@@ -23,6 +23,11 @@ namespace HostAnnotation.Common {
             public const string TokenExpirationInSeconds = "Token:ExpirationInSeconds";
         }
 
+        // Action codes used in the console application.
+        public static class ConsoleActionCode {
+            public const string AnnotateHostGroup = "annotate_host_group";
+        }
+
         // (Custom) User identity claim types.
         public static class IdentityClaimType {
             public const string OrgID = "OrgID";

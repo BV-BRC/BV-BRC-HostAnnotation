@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostAnnotation", "HostAnnot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostAnnotationWeb", "HostAnnotationWeb\HostAnnotationWeb.csproj", "{0537035F-4AC2-463A-9F20-7BB1D7BD433B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HostAnnotationConsole", "HostAnnotationConsole\HostAnnotationConsole.csproj", "{2C415D31-8BA2-49C4-8F3F-1AD47F118CF8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{478FA963-18D9-49F8-A981-C8B51DA11E4F} = {478FA963-18D9-49F8-A981-C8B51DA11E4F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +26,10 @@ Global
 		{0537035F-4AC2-463A-9F20-7BB1D7BD433B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0537035F-4AC2-463A-9F20-7BB1D7BD433B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0537035F-4AC2-463A-9F20-7BB1D7BD433B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C415D31-8BA2-49C4-8F3F-1AD47F118CF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C415D31-8BA2-49C4-8F3F-1AD47F118CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C415D31-8BA2-49C4-8F3F-1AD47F118CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C415D31-8BA2-49C4-8F3F-1AD47F118CF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

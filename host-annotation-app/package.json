@@ -12,24 +12,31 @@
     "generate": "stencil generate"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.1.0",
-    "@ionic/core": "^7.0.9",
-    "@stencil/core": "^3.3.0",
-    "@types/jest": "~27.0.3",
-    "datatables.net-dt": "^1.13.8",
-    "ionicons": "^7.1.1",
-    "jest": "~27.0.3",
-    "jest-cli": "~27.4.5",
-    "puppeteer": "^24.37.2"
+    "@capacitor/cli": "^8.3.0",
+    "@ionic/core": "^8.8.2",
+    "@stencil/core": "^4.43.3",
+    "@types/jest": "~30.0.0",
+    "datatables.net-dt": "^2.3.7",
+    "ionicons": "^8.0.13",
+    "jest": "~30.3.0",
+    "jest-cli": "~30.3.0",
+    "puppeteer": "^24.40.0"
   },
   "license": "MIT",
   "dependencies": {
-    "@capacitor/browser": "^5.1.0",
-    "@capacitor/core": "^5.5.1",
-    "@capacitor/preferences": "^5.0.6",
-    "@types/jquery": "^3.5.29",
-    "axios": "^1.13.5",
-    "jquery": "^3.7.1",
-    "sweetalert2": "^11.6.13"
-  }
+    "@capacitor/browser": "^8.0.3",
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@types/jquery": "^4.0.0",
+    "axios": "^1.14.0",
+    "jquery": "^4.0.0",
+    "sweetalert2": "^11.26.24"
+  },
+  "overrides": {
+      "tar": "^7.5.8",
+      "basic-ftp": "^5.2.0",
+      "minimatch": "^10.2.3",
+      "@tootallnate/once": "^3.0.1",
+      "test-exclude": "^8.0.0"
+   }
 }

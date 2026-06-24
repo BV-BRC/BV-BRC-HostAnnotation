@@ -8,36 +8,33 @@ CREATE VIEW dbo.v_annotated_host AS
 
 
 SELECT 
-
-	ah.id,
-	ah.algorithm_id,
-	ah.common_name,
-	--ah.com_name_is_avian,
-	--com_name_score,
-	ah.com_name_synonyms,
-	--com_name_taxonomy_db_tid,
-	--com_name_taxonomy_id,
-	--com_name_taxon_name_match_id,
 	ah.[host_id],
 	h.text AS host_text,
+	
+	ROUND(ah.sci_name_score, 2) AS score,
+	ah.status,
+
 	ah.rank_name,
 	ah.scientific_name,
-	ah.sci_name_is_avian,
-	ah.sci_name_score,
-	snTaxDB.term_key AS sci_name_taxonomy_db,
-	--ah.sci_name_taxonomy_db_tid,
-	ah.sci_name_taxonomy_id,
-	ah.sci_name_taxon_name_match_id,
-	ah.status,
-	ah.status_details,
-	ah.taxon_class_cn,
-	ah.taxon_class_sn
-	--ah.taxon_order_sn,
-	--ah.taxon_family_sn,
-	--ah.taxon_genus_sn,
-	--ah.taxon_species_sn
+
+	ISNULL(ah.common_name, '') AS common_name,
+	ISNULL(ah.com_name_synonyms,'') AS com_name_synonyms,
+	
+	tl.lineage,
+	
+	ISNULL(tl.class_name, '') AS class_sci_name,
+	ISNULL(ah.taxon_class_cn, '') AS class_common_name,
+
+	ISNULL(tl.host_group, '') as bvbrc_host_group,
+
+	snTaxDB.term_key AS taxonomy_db,
+	ah.sci_name_taxonomy_id AS taxonomy_id
 
 FROM annotated_host ah
 JOIN hosts h ON h.id = ah.[host_id]
 JOIN term snTaxDB ON snTaxDB.term_id = ah.sci_name_taxonomy_db_tid
+LEFT JOIN v_tmp_lineage tl ON (
+	tl.taxonomy_db = snTaxDB.term_key
+	AND tl.taxonomy_id = ah.sci_name_taxonomy_id
+)
 

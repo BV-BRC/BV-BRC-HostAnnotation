@@ -7,11 +7,10 @@ namespace HostAnnotation.Services {
 
     public interface IAnnotationService {
 
-        // Annotate all hosts with this group ID. If "unprocessed" is true, only annotate hosts that 
-        // have not yet been processed. If a non-null max hosts value is provided, only that many hosts will
-        // be processed now. Otherwise, all valid hosts in the specified group (possibly only unprocessed)
-        // will be annotated.
-        int annotateHostGroup(int groupID_, int? maxHosts_, bool unprocessed_);
+        // Annotate all hosts with this group ID. If a non-null max hosts value is provided, that will be the maximum number of
+        // hosts that will be annotated. If null, there is no maximum and all hosts in the group will be annotated. The return
+        // value is the number of hosts that were annotated.
+        int annotateHostGroup(int groupID_, int? maxHosts_);
 
         AnnotatedHost? annotateHostText(string initialText_);
 

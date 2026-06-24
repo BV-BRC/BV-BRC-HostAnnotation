@@ -8,10 +8,10 @@ GO
 -- Created on: 03/18/26
 -- Description: Iteratively populate lineage using this table.
 -- Updated: 
---      dmd 04/06/26 - Added BV-BRC host group and improved class name determination.
+--      dmd 04/06/26 - Added BV-BRC host group and improved class name determination, removed initialization code so that 
+--          taxa must be flagged as "current parents" prior to running this script.
 -- ============================================================================================================================
 CREATE OR ALTER PROCEDURE dbo.populateTmpLineage
-	@rootTaxonomyID INT,
 	@taxonomyDB VARCHAR(255)
 AS
 BEGIN
@@ -40,35 +40,14 @@ BEGIN
     SELECT @taxDbTID = term_id FROM term WHERE term_full_key = 'taxonomy_db.' + @taxonomyDB
     IF @taxDbTID IS NULL THROW @errorCode, 'Invalid term id for taxonomy db', 1
 
-    -- Get the number of taxa tagged as "current parent".
-    DECLARE @currentParents INT = (
-        SELECT COUNT(*) 
+    -- Top-level taxa for this taxonomy DB should be tagged as "current parent" 
+    -- prior to running this script.
+    IF (SELECT COUNT(*) 
         FROM tmp_lineage 
         WHERE taxonomy_db_tid = @taxDbTID
         AND lineage_status = @CURRENT_PARENT
-    )
+    ) < 1 THROW @errorCode, 'No current parents have been specified', 1
 
-    IF @rootTaxonomyID IS NOT NULL AND @rootTaxonomyID > 0
-        BEGIN
-            -- A root taxonomy ID was provided, so make it the current parent.
-
-            -- First, make sure there aren't already current parents for this taxonomy DB.
-            If @currentParents > 0 THROW @errorCode, 'The temp lineage table already has current parents for this taxonomy database', 1
-
-            -- Set the specified taxon as the current parent.
-            UPDATE tmp_lineage SET lineage_status = @CURRENT_PARENT WHERE taxonomy_db_tid = @taxDbTID AND taxonomy_id = @rootTaxonomyID
-        END
-
-    ELSE IF @taxonomyDB = 'itis' AND @rootTaxonomyID = 0
-        BEGIN
-            -- This is a special case: The ITIS taxonomy database has a root taxon with an ID (tsn) of zero, but we won't include it
-            -- in the lineage. However, we will use all taxa with a parent of zero as the initial current parents, which will include 
-            -- the major kingdoms like Animalia and Bacteria.
-          UPDATE tmp_lineage SET lineage_status = @CURRENT_PARENT
-          WHERE taxonomy_db_tid = @taxDbTID
-          AND parent_taxonomy_id = 0
-        END
-    
     -- Initialize the number of unprocessed nodes.
     SELECT @unprocessedCount = COUNT(*)
     FROM tmp_lineage
@@ -78,6 +57,7 @@ BEGIN
     -- Loop over this update as long as there are unprocessed taxa or we have exceeded the maximum number of iterations.
     WHILE @unprocessedCount > 0 AND @currentIteration <= @maxIterations
     BEGIN
+
         -- Update child nodes with the parent's lineage, the BV-BRC host group, and the scientific name of the taxonomic class.
         UPDATE c
         SET
@@ -95,32 +75,10 @@ BEGIN
 
             -- Use the parent's BV-BRC host group if it has been assigned.
             c.host_group = CASE
+                WHEN c.host_group IS NOT NULL THEN c.host_group
                 WHEN p.host_group IS NOT NULL AND LEN(p.host_group) > 0 THEN p.host_group 
                 ELSE NULL
             END
-
-            /*
-            -- Lineage names
-            c.lineage_names =
-                CASE
-                    WHEN p.lineage_names IS NULL OR LEN(p.lineage_names) < 1 THEN p.name
-                    ELSE p.lineage_names + @listDelimiter + p.name
-                END,
-
-            -- Lineage ranks
-            c.lineage_ranks =
-                CASE
-                    WHEN p.lineage_ranks IS NULL OR LEN(p.lineage_ranks) < 1 THEN p.rank_name
-                    ELSE p.lineage_ranks + @listDelimiter + p.rank_name
-                END,
-
-            -- Lineage taxonomy IDs
-            c.lineage_tax_ids =
-                CASE
-                    WHEN p.lineage_tax_ids IS NULL OR LEN(p.lineage_tax_ids) < 1 THEN CAST(p.taxonomy_id AS VARCHAR(12))
-                    ELSE p.lineage_tax_ids + @listDelimiter + CAST(p.taxonomy_id AS VARCHAR(12))
-                END
-            */
 
         FROM tmp_lineage c
         INNER JOIN tmp_lineage p ON p.taxonomy_id = c.parent_taxonomy_id
@@ -150,7 +108,6 @@ BEGIN
         SET @currentIteration = @currentIteration + 1;
     END;
 
-
     -- End time
     DECLARE @end DATETIME = SYSDATETIME();
 
@@ -163,8 +120,8 @@ BEGIN
     DECLARE @seconds INT = @duration % 60;
 
     -- Display the results
-    PRINT 'Start Time: ' + CONVERT(VARCHAR, @start, 120); -- 120 for YYYY-MM-DD HH:MI:SS
-    PRINT 'End Time: ' + CONVERT(VARCHAR, @end, 120);
+    -- PRINT 'Start Time: ' + CONVERT(VARCHAR, @start, 120); -- 120 for YYYY-MM-DD HH:MI:SS
+    -- PRINT 'End Time: ' + CONVERT(VARCHAR, @end, 120);
 
     DECLARE @elapsed VARCHAR(100) = ''
 
@@ -187,6 +144,7 @@ BEGIN
         IF @seconds <> 1 SET @elapsed = @elapsed + 's' 
     END
 
-    PRINT 'Duration: ' + @elapsed
+    PRINT '     Duration: ' + @elapsed
+    PRINT '     Number of iterations: '+CAST(@currentIteration AS VARCHAR(12))
 
 END

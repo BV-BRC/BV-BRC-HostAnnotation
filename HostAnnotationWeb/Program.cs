@@ -1,37 +1,35 @@
 
 
-using System.Security.Claims;
-using System.Text.Json.Serialization;
-
 using HostAnnotation.Common;
 using HostAnnotation.Services;
 using HostAnnotationWeb.Auth;
+using System.Runtime.InteropServices;
+using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 
 // Create a web application builder.
 var builder = WebApplication.CreateBuilder(args);
 
+
+// Add logging to the application
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// TODO: what's the best way to use logging on all platforms?
+if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+    builder.Logging.AddEventLog(eventLogSettings => {
+        eventLogSettings.SourceName = "BV-BRC";
+    });
+}
+
 //----------------------------------------------------------------------------------------------
 // Get configuration data used by services
 //----------------------------------------------------------------------------------------------
 
-// Get the database connection string.
-string? dbConnectionString = builder.Configuration.GetValue<string>(Names.ConfigKey.DbConnectionString);
-if (string.IsNullOrEmpty(dbConnectionString)) { throw new Exception("Invalid database connection string (empty)"); }
-
-// The environment value will determine which assessment services will be available.
-Terms.environment environment = Terms.environment.unknown;
-
-string? strEnvironment = builder.Configuration.GetValue<string>(Names.ConfigKey.Environment);
-if (string.IsNullOrEmpty(strEnvironment) || !Enum.TryParse(strEnvironment, out environment)) {
-    throw new Exception("Unable to convert Settings.Environment to an enum");
-}
-
-// Get the secret key (TODO: move this to IIS ApplicationSettings!)
+// Get the secret key
 string? secretKey = builder.Configuration.GetValue<string>(Names.ConfigKey.AuthSecret);
-
-// Get the Token expiration in seconds.
-double? expirationInSeconds = builder.Configuration.GetValue<double>(Names.ConfigKey.TokenExpirationInSeconds);
 
 
 //----------------------------------------------------------------------------------------------
@@ -58,7 +56,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Include PAD-specific environment variables.
+// Include BV-BRC-specific environment variables.
 builder.Configuration.AddEnvironmentVariables("BVBRC_");
 
 builder.Services.AddSingleton(builder.Configuration);
@@ -73,7 +71,6 @@ builder.Services
     .AddScheme<AuthOptions, AuthHandler>("Basic", options_ => {
         options_.SecretKey = secretKey;
     });
-
 
 // Add the account service.
 builder.Services.AddSingleton<IAccountService, AccountService>();
@@ -92,8 +89,6 @@ builder.Services.AddSingleton<ITaxonomyService, TaxonomyService>();
 
 // Add the token service.
 builder.Services.AddSingleton<ITokenService, TokenService>();
-
-
 
 
 // Configure authorization policies

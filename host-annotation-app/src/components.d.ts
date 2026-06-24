@@ -14,51 +14,87 @@ export { ControlType } from "./components/components/input-control/InputControlT
 export { IChangeHandler, IControlListOption, IKeyPressHandler } from "./components/components/labeled-control/Common";
 export { ISearchCallback } from "./components/components/search-panel/Common";
 export namespace Components {
-    interface AboutPage {
-    }
     interface AdminCreatePersonPage {
     }
     interface AdminHomePage {
     }
     interface AdminSideMenu {
+        /**
+          * @default false
+         */
         "isOpen": boolean;
     }
     interface AnnotateHostPage {
     }
     interface AppRoot {
     }
-    interface AppTabs {
-    }
     interface AuthorizedHeader {
+        /**
+          * @default null
+         */
         "canGoBack": IBoolFunction;
         "controlType": HeaderControlType;
+        /**
+          * @default null
+         */
         "pageTitle": string;
+        /**
+          * @default false
+         */
         "useDefault": boolean;
     }
     interface BvbrcButton {
+        /**
+          * @default null
+         */
         "buttonKey": string;
+        /**
+          * @default null
+         */
         "clickHandler": IUIEventHandler;
+        /**
+          * @default null
+         */
         "icon": string;
+        /**
+          * @default false
+         */
         "iconOnRight": boolean;
+        /**
+          * @default false
+         */
         "isDisabled": boolean;
+        /**
+          * @default false
+         */
         "isLoading": boolean;
         "label": string;
+        /**
+          * @default CustomIcon.spinner
+         */
         "loadingIcon": string;
+        /**
+          * @default "Loading"
+         */
         "loadingLabel": string;
         "refresh": () => Promise<void>;
+        /**
+          * @default ButtonSize.medium
+         */
         "size": ButtonSize;
+        /**
+          * @default null
+         */
         "status": GenericStatus;
     }
     interface BvbrcDialog {
         "cancelIcon": string;
+        /**
+          * @default "Cancel"
+         */
         "cancelLabel": string;
         "close": () => Promise<void>;
         "open": () => Promise<void>;
-    }
-    interface BvbrcIcon {
-        "cssClass": string;
-        "isCustom": boolean;
-        "name": string;
     }
     interface BvbrcIonButton {
     }
@@ -67,9 +103,10 @@ export namespace Components {
     interface CurationTabs {
     }
     interface CuratorSideMenu {
+        /**
+          * @default false
+         */
         "isOpen": boolean;
-    }
-    interface FaqPage {
     }
     interface HomePage {
     }
@@ -85,38 +122,96 @@ export namespace Components {
         "value": string;
     }
     interface LabeledControl {
+        /**
+          * @default null
+         */
         "attributeKey": string;
+        /**
+          * @default null
+         */
         "changeHandler": IChangeHandler;
         "clearValue": () => Promise<void>;
+        /**
+          * @default ControlType.text
+         */
         "controlType": ControlType1;
         "getValue": () => Promise<string>;
+        /**
+          * @default null
+         */
         "initialValue": any;
+        /**
+          * @default false
+         */
         "isDisabled": boolean;
+        /**
+          * @default false
+         */
         "isReadOnly": boolean;
+        /**
+          * @default false
+         */
         "isRequired": boolean;
+        /**
+          * @default null
+         */
         "keypressHandler": IKeyPressHandler;
+        /**
+          * @default null
+         */
         "keyupHandler": IChangeHandler;
+        /**
+          * @default LabelOrientation.left
+         */
         "labelOrientation": LabelOrientation;
+        /**
+          * @default null
+         */
         "labelText": string;
         "listOptions": IControlListOption[];
+        /**
+          * @default false
+         */
         "spellcheck": boolean;
+        /**
+          * @default GenericStatus.unspecified
+         */
         "status": GenericStatus;
+        /**
+          * @default null
+         */
         "statusMessage": string;
+        /**
+          * @default 3
+         */
         "textAreaRows": number;
+        /**
+          * @default null
+         */
         "textPlaceholder": string;
     }
     interface LoginPage {
     }
     interface LookupHostPage {
     }
-    interface PrivacyPolicy {
-    }
     interface ResetPasswordPage {
     }
     interface SearchPanel {
+        /**
+          * @default null
+         */
         "pageKey": PageKey;
+        /**
+          * @default "Enter search text (optional)"
+         */
         "placeholderText": string;
+        /**
+          * @default null
+         */
         "searchCallback": ISearchCallback;
+        /**
+          * @default true
+         */
         "useState": boolean;
     }
     interface SideMenuEntry {
@@ -125,24 +220,12 @@ export namespace Components {
     }
     interface TaxonomySearchPage {
     }
-    interface TermsOfService {
-    }
-    interface TestPage {
-    }
-    interface UnauthorizedHeader {
-    }
     interface UserProfilePage {
     }
     interface ViewHostPage {
     }
 }
 declare global {
-    interface HTMLAboutPageElement extends Components.AboutPage, HTMLStencilElement {
-    }
-    var HTMLAboutPageElement: {
-        prototype: HTMLAboutPageElement;
-        new (): HTMLAboutPageElement;
-    };
     interface HTMLAdminCreatePersonPageElement extends Components.AdminCreatePersonPage, HTMLStencilElement {
     }
     var HTMLAdminCreatePersonPageElement: {
@@ -173,12 +256,6 @@ declare global {
         prototype: HTMLAppRootElement;
         new (): HTMLAppRootElement;
     };
-    interface HTMLAppTabsElement extends Components.AppTabs, HTMLStencilElement {
-    }
-    var HTMLAppTabsElement: {
-        prototype: HTMLAppTabsElement;
-        new (): HTMLAppTabsElement;
-    };
     interface HTMLAuthorizedHeaderElement extends Components.AuthorizedHeader, HTMLStencilElement {
     }
     var HTMLAuthorizedHeaderElement: {
@@ -196,12 +273,6 @@ declare global {
     var HTMLBvbrcDialogElement: {
         prototype: HTMLBvbrcDialogElement;
         new (): HTMLBvbrcDialogElement;
-    };
-    interface HTMLBvbrcIconElement extends Components.BvbrcIcon, HTMLStencilElement {
-    }
-    var HTMLBvbrcIconElement: {
-        prototype: HTMLBvbrcIconElement;
-        new (): HTMLBvbrcIconElement;
     };
     interface HTMLBvbrcIonButtonElement extends Components.BvbrcIonButton, HTMLStencilElement {
     }
@@ -226,12 +297,6 @@ declare global {
     var HTMLCuratorSideMenuElement: {
         prototype: HTMLCuratorSideMenuElement;
         new (): HTMLCuratorSideMenuElement;
-    };
-    interface HTMLFaqPageElement extends Components.FaqPage, HTMLStencilElement {
-    }
-    var HTMLFaqPageElement: {
-        prototype: HTMLFaqPageElement;
-        new (): HTMLFaqPageElement;
     };
     interface HTMLHomePageElement extends Components.HomePage, HTMLStencilElement {
     }
@@ -275,12 +340,6 @@ declare global {
         prototype: HTMLLookupHostPageElement;
         new (): HTMLLookupHostPageElement;
     };
-    interface HTMLPrivacyPolicyElement extends Components.PrivacyPolicy, HTMLStencilElement {
-    }
-    var HTMLPrivacyPolicyElement: {
-        prototype: HTMLPrivacyPolicyElement;
-        new (): HTMLPrivacyPolicyElement;
-    };
     interface HTMLResetPasswordPageElement extends Components.ResetPasswordPage, HTMLStencilElement {
     }
     var HTMLResetPasswordPageElement: {
@@ -305,24 +364,6 @@ declare global {
         prototype: HTMLTaxonomySearchPageElement;
         new (): HTMLTaxonomySearchPageElement;
     };
-    interface HTMLTermsOfServiceElement extends Components.TermsOfService, HTMLStencilElement {
-    }
-    var HTMLTermsOfServiceElement: {
-        prototype: HTMLTermsOfServiceElement;
-        new (): HTMLTermsOfServiceElement;
-    };
-    interface HTMLTestPageElement extends Components.TestPage, HTMLStencilElement {
-    }
-    var HTMLTestPageElement: {
-        prototype: HTMLTestPageElement;
-        new (): HTMLTestPageElement;
-    };
-    interface HTMLUnauthorizedHeaderElement extends Components.UnauthorizedHeader, HTMLStencilElement {
-    }
-    var HTMLUnauthorizedHeaderElement: {
-        prototype: HTMLUnauthorizedHeaderElement;
-        new (): HTMLUnauthorizedHeaderElement;
-    };
     interface HTMLUserProfilePageElement extends Components.UserProfilePage, HTMLStencilElement {
     }
     var HTMLUserProfilePageElement: {
@@ -336,22 +377,18 @@ declare global {
         new (): HTMLViewHostPageElement;
     };
     interface HTMLElementTagNameMap {
-        "about-page": HTMLAboutPageElement;
         "admin-create-person-page": HTMLAdminCreatePersonPageElement;
         "admin-home-page": HTMLAdminHomePageElement;
         "admin-side-menu": HTMLAdminSideMenuElement;
         "annotate-host-page": HTMLAnnotateHostPageElement;
         "app-root": HTMLAppRootElement;
-        "app-tabs": HTMLAppTabsElement;
         "authorized-header": HTMLAuthorizedHeaderElement;
         "bvbrc-button": HTMLBvbrcButtonElement;
         "bvbrc-dialog": HTMLBvbrcDialogElement;
-        "bvbrc-icon": HTMLBvbrcIconElement;
         "bvbrc-ion-button": HTMLBvbrcIonButtonElement;
         "curated-words-page": HTMLCuratedWordsPageElement;
         "curation-tabs": HTMLCurationTabsElement;
         "curator-side-menu": HTMLCuratorSideMenuElement;
-        "faq-page": HTMLFaqPageElement;
         "home-page": HTMLHomePageElement;
         "host-taxa-matches-page": HTMLHostTaxaMatchesPageElement;
         "hosts-page": HTMLHostsPageElement;
@@ -359,61 +396,93 @@ declare global {
         "labeled-control": HTMLLabeledControlElement;
         "login-page": HTMLLoginPageElement;
         "lookup-host-page": HTMLLookupHostPageElement;
-        "privacy-policy": HTMLPrivacyPolicyElement;
         "reset-password-page": HTMLResetPasswordPageElement;
         "search-panel": HTMLSearchPanelElement;
         "side-menu-entry": HTMLSideMenuEntryElement;
         "taxonomy-search-page": HTMLTaxonomySearchPageElement;
-        "terms-of-service": HTMLTermsOfServiceElement;
-        "test-page": HTMLTestPageElement;
-        "unauthorized-header": HTMLUnauthorizedHeaderElement;
         "user-profile-page": HTMLUserProfilePageElement;
         "view-host-page": HTMLViewHostPageElement;
     }
 }
 declare namespace LocalJSX {
-    interface AboutPage {
-    }
     interface AdminCreatePersonPage {
     }
     interface AdminHomePage {
     }
     interface AdminSideMenu {
+        /**
+          * @default false
+         */
         "isOpen"?: boolean;
     }
     interface AnnotateHostPage {
     }
     interface AppRoot {
     }
-    interface AppTabs {
-    }
     interface AuthorizedHeader {
+        /**
+          * @default null
+         */
         "canGoBack"?: IBoolFunction;
         "controlType"?: HeaderControlType;
+        /**
+          * @default null
+         */
         "pageTitle"?: string;
+        /**
+          * @default false
+         */
         "useDefault"?: boolean;
     }
     interface BvbrcButton {
+        /**
+          * @default null
+         */
         "buttonKey"?: string;
+        /**
+          * @default null
+         */
         "clickHandler"?: IUIEventHandler;
+        /**
+          * @default null
+         */
         "icon"?: string;
+        /**
+          * @default false
+         */
         "iconOnRight"?: boolean;
+        /**
+          * @default false
+         */
         "isDisabled"?: boolean;
+        /**
+          * @default false
+         */
         "isLoading"?: boolean;
         "label"?: string;
+        /**
+          * @default CustomIcon.spinner
+         */
         "loadingIcon"?: string;
+        /**
+          * @default "Loading"
+         */
         "loadingLabel"?: string;
+        /**
+          * @default ButtonSize.medium
+         */
         "size"?: ButtonSize;
+        /**
+          * @default null
+         */
         "status"?: GenericStatus;
     }
     interface BvbrcDialog {
         "cancelIcon"?: string;
+        /**
+          * @default "Cancel"
+         */
         "cancelLabel"?: string;
-    }
-    interface BvbrcIcon {
-        "cssClass"?: string;
-        "isCustom"?: boolean;
-        "name"?: string;
     }
     interface BvbrcIonButton {
     }
@@ -422,9 +491,10 @@ declare namespace LocalJSX {
     interface CurationTabs {
     }
     interface CuratorSideMenu {
+        /**
+          * @default false
+         */
         "isOpen"?: boolean;
-    }
-    interface FaqPage {
     }
     interface HomePage {
     }
@@ -440,36 +510,94 @@ declare namespace LocalJSX {
         "value"?: string;
     }
     interface LabeledControl {
+        /**
+          * @default null
+         */
         "attributeKey"?: string;
+        /**
+          * @default null
+         */
         "changeHandler"?: IChangeHandler;
+        /**
+          * @default ControlType.text
+         */
         "controlType"?: ControlType1;
+        /**
+          * @default null
+         */
         "initialValue"?: any;
+        /**
+          * @default false
+         */
         "isDisabled"?: boolean;
+        /**
+          * @default false
+         */
         "isReadOnly"?: boolean;
+        /**
+          * @default false
+         */
         "isRequired"?: boolean;
+        /**
+          * @default null
+         */
         "keypressHandler"?: IKeyPressHandler;
+        /**
+          * @default null
+         */
         "keyupHandler"?: IChangeHandler;
+        /**
+          * @default LabelOrientation.left
+         */
         "labelOrientation"?: LabelOrientation;
+        /**
+          * @default null
+         */
         "labelText"?: string;
         "listOptions"?: IControlListOption[];
+        /**
+          * @default false
+         */
         "spellcheck"?: boolean;
+        /**
+          * @default GenericStatus.unspecified
+         */
         "status"?: GenericStatus;
+        /**
+          * @default null
+         */
         "statusMessage"?: string;
+        /**
+          * @default 3
+         */
         "textAreaRows"?: number;
+        /**
+          * @default null
+         */
         "textPlaceholder"?: string;
     }
     interface LoginPage {
     }
     interface LookupHostPage {
     }
-    interface PrivacyPolicy {
-    }
     interface ResetPasswordPage {
     }
     interface SearchPanel {
+        /**
+          * @default null
+         */
         "pageKey"?: PageKey;
+        /**
+          * @default "Enter search text (optional)"
+         */
         "placeholderText"?: string;
+        /**
+          * @default null
+         */
         "searchCallback"?: ISearchCallback;
+        /**
+          * @default true
+         */
         "useState"?: boolean;
     }
     interface SideMenuEntry {
@@ -478,48 +606,93 @@ declare namespace LocalJSX {
     }
     interface TaxonomySearchPage {
     }
-    interface TermsOfService {
-    }
-    interface TestPage {
-    }
-    interface UnauthorizedHeader {
-    }
     interface UserProfilePage {
     }
     interface ViewHostPage {
     }
+
+    interface AdminSideMenuAttributes {
+        "isOpen": boolean;
+    }
+    interface AuthorizedHeaderAttributes {
+        "controlType": HeaderControlType;
+        "pageTitle": string;
+        "useDefault": boolean;
+    }
+    interface BvbrcButtonAttributes {
+        "buttonKey": string;
+        "icon": string;
+        "iconOnRight": boolean;
+        "isDisabled": boolean;
+        "isLoading": boolean;
+        "label": string;
+        "loadingIcon": string;
+        "loadingLabel": string;
+        "size": ButtonSize;
+        "status": GenericStatus;
+    }
+    interface BvbrcDialogAttributes {
+        "cancelIcon": string;
+        "cancelLabel": string;
+    }
+    interface CuratorSideMenuAttributes {
+        "isOpen": boolean;
+    }
+    interface InputControlAttributes {
+        "controlType": ControlType;
+        "isReadOnly": boolean;
+        "labelText": string;
+        "value": string;
+    }
+    interface LabeledControlAttributes {
+        "attributeKey": string;
+        "controlType": ControlType;
+        "initialValue": string;
+        "isDisabled": boolean;
+        "isReadOnly": boolean;
+        "isRequired": boolean;
+        "labelOrientation": LabelOrientation;
+        "labelText": string;
+        "spellcheck": boolean;
+        "status": GenericStatus;
+        "statusMessage": string;
+        "textAreaRows": number;
+        "textPlaceholder": string;
+    }
+    interface SearchPanelAttributes {
+        "pageKey": PageKey;
+        "placeholderText": string;
+        "useState": boolean;
+    }
+    interface SideMenuEntryAttributes {
+        "icon": string;
+        "label": string;
+    }
+
     interface IntrinsicElements {
-        "about-page": AboutPage;
         "admin-create-person-page": AdminCreatePersonPage;
         "admin-home-page": AdminHomePage;
-        "admin-side-menu": AdminSideMenu;
+        "admin-side-menu": Omit<AdminSideMenu, keyof AdminSideMenuAttributes> & { [K in keyof AdminSideMenu & keyof AdminSideMenuAttributes]?: AdminSideMenu[K] } & { [K in keyof AdminSideMenu & keyof AdminSideMenuAttributes as `attr:${K}`]?: AdminSideMenuAttributes[K] } & { [K in keyof AdminSideMenu & keyof AdminSideMenuAttributes as `prop:${K}`]?: AdminSideMenu[K] };
         "annotate-host-page": AnnotateHostPage;
         "app-root": AppRoot;
-        "app-tabs": AppTabs;
-        "authorized-header": AuthorizedHeader;
-        "bvbrc-button": BvbrcButton;
-        "bvbrc-dialog": BvbrcDialog;
-        "bvbrc-icon": BvbrcIcon;
+        "authorized-header": Omit<AuthorizedHeader, keyof AuthorizedHeaderAttributes> & { [K in keyof AuthorizedHeader & keyof AuthorizedHeaderAttributes]?: AuthorizedHeader[K] } & { [K in keyof AuthorizedHeader & keyof AuthorizedHeaderAttributes as `attr:${K}`]?: AuthorizedHeaderAttributes[K] } & { [K in keyof AuthorizedHeader & keyof AuthorizedHeaderAttributes as `prop:${K}`]?: AuthorizedHeader[K] };
+        "bvbrc-button": Omit<BvbrcButton, keyof BvbrcButtonAttributes> & { [K in keyof BvbrcButton & keyof BvbrcButtonAttributes]?: BvbrcButton[K] } & { [K in keyof BvbrcButton & keyof BvbrcButtonAttributes as `attr:${K}`]?: BvbrcButtonAttributes[K] } & { [K in keyof BvbrcButton & keyof BvbrcButtonAttributes as `prop:${K}`]?: BvbrcButton[K] };
+        "bvbrc-dialog": Omit<BvbrcDialog, keyof BvbrcDialogAttributes> & { [K in keyof BvbrcDialog & keyof BvbrcDialogAttributes]?: BvbrcDialog[K] } & { [K in keyof BvbrcDialog & keyof BvbrcDialogAttributes as `attr:${K}`]?: BvbrcDialogAttributes[K] } & { [K in keyof BvbrcDialog & keyof BvbrcDialogAttributes as `prop:${K}`]?: BvbrcDialog[K] };
         "bvbrc-ion-button": BvbrcIonButton;
         "curated-words-page": CuratedWordsPage;
         "curation-tabs": CurationTabs;
-        "curator-side-menu": CuratorSideMenu;
-        "faq-page": FaqPage;
+        "curator-side-menu": Omit<CuratorSideMenu, keyof CuratorSideMenuAttributes> & { [K in keyof CuratorSideMenu & keyof CuratorSideMenuAttributes]?: CuratorSideMenu[K] } & { [K in keyof CuratorSideMenu & keyof CuratorSideMenuAttributes as `attr:${K}`]?: CuratorSideMenuAttributes[K] } & { [K in keyof CuratorSideMenu & keyof CuratorSideMenuAttributes as `prop:${K}`]?: CuratorSideMenu[K] };
         "home-page": HomePage;
         "host-taxa-matches-page": HostTaxaMatchesPage;
         "hosts-page": HostsPage;
-        "input-control": InputControl;
-        "labeled-control": LabeledControl;
+        "input-control": Omit<InputControl, keyof InputControlAttributes> & { [K in keyof InputControl & keyof InputControlAttributes]?: InputControl[K] } & { [K in keyof InputControl & keyof InputControlAttributes as `attr:${K}`]?: InputControlAttributes[K] } & { [K in keyof InputControl & keyof InputControlAttributes as `prop:${K}`]?: InputControl[K] };
+        "labeled-control": Omit<LabeledControl, keyof LabeledControlAttributes> & { [K in keyof LabeledControl & keyof LabeledControlAttributes]?: LabeledControl[K] } & { [K in keyof LabeledControl & keyof LabeledControlAttributes as `attr:${K}`]?: LabeledControlAttributes[K] } & { [K in keyof LabeledControl & keyof LabeledControlAttributes as `prop:${K}`]?: LabeledControl[K] };
         "login-page": LoginPage;
         "lookup-host-page": LookupHostPage;
-        "privacy-policy": PrivacyPolicy;
         "reset-password-page": ResetPasswordPage;
-        "search-panel": SearchPanel;
-        "side-menu-entry": SideMenuEntry;
+        "search-panel": Omit<SearchPanel, keyof SearchPanelAttributes> & { [K in keyof SearchPanel & keyof SearchPanelAttributes]?: SearchPanel[K] } & { [K in keyof SearchPanel & keyof SearchPanelAttributes as `attr:${K}`]?: SearchPanelAttributes[K] } & { [K in keyof SearchPanel & keyof SearchPanelAttributes as `prop:${K}`]?: SearchPanel[K] };
+        "side-menu-entry": Omit<SideMenuEntry, keyof SideMenuEntryAttributes> & { [K in keyof SideMenuEntry & keyof SideMenuEntryAttributes]?: SideMenuEntry[K] } & { [K in keyof SideMenuEntry & keyof SideMenuEntryAttributes as `attr:${K}`]?: SideMenuEntryAttributes[K] } & { [K in keyof SideMenuEntry & keyof SideMenuEntryAttributes as `prop:${K}`]?: SideMenuEntry[K] };
         "taxonomy-search-page": TaxonomySearchPage;
-        "terms-of-service": TermsOfService;
-        "test-page": TestPage;
-        "unauthorized-header": UnauthorizedHeader;
         "user-profile-page": UserProfilePage;
         "view-host-page": ViewHostPage;
     }
@@ -528,39 +701,31 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "about-page": LocalJSX.AboutPage & JSXBase.HTMLAttributes<HTMLAboutPageElement>;
-            "admin-create-person-page": LocalJSX.AdminCreatePersonPage & JSXBase.HTMLAttributes<HTMLAdminCreatePersonPageElement>;
-            "admin-home-page": LocalJSX.AdminHomePage & JSXBase.HTMLAttributes<HTMLAdminHomePageElement>;
-            "admin-side-menu": LocalJSX.AdminSideMenu & JSXBase.HTMLAttributes<HTMLAdminSideMenuElement>;
-            "annotate-host-page": LocalJSX.AnnotateHostPage & JSXBase.HTMLAttributes<HTMLAnnotateHostPageElement>;
-            "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
-            "app-tabs": LocalJSX.AppTabs & JSXBase.HTMLAttributes<HTMLAppTabsElement>;
-            "authorized-header": LocalJSX.AuthorizedHeader & JSXBase.HTMLAttributes<HTMLAuthorizedHeaderElement>;
-            "bvbrc-button": LocalJSX.BvbrcButton & JSXBase.HTMLAttributes<HTMLBvbrcButtonElement>;
-            "bvbrc-dialog": LocalJSX.BvbrcDialog & JSXBase.HTMLAttributes<HTMLBvbrcDialogElement>;
-            "bvbrc-icon": LocalJSX.BvbrcIcon & JSXBase.HTMLAttributes<HTMLBvbrcIconElement>;
-            "bvbrc-ion-button": LocalJSX.BvbrcIonButton & JSXBase.HTMLAttributes<HTMLBvbrcIonButtonElement>;
-            "curated-words-page": LocalJSX.CuratedWordsPage & JSXBase.HTMLAttributes<HTMLCuratedWordsPageElement>;
-            "curation-tabs": LocalJSX.CurationTabs & JSXBase.HTMLAttributes<HTMLCurationTabsElement>;
-            "curator-side-menu": LocalJSX.CuratorSideMenu & JSXBase.HTMLAttributes<HTMLCuratorSideMenuElement>;
-            "faq-page": LocalJSX.FaqPage & JSXBase.HTMLAttributes<HTMLFaqPageElement>;
-            "home-page": LocalJSX.HomePage & JSXBase.HTMLAttributes<HTMLHomePageElement>;
-            "host-taxa-matches-page": LocalJSX.HostTaxaMatchesPage & JSXBase.HTMLAttributes<HTMLHostTaxaMatchesPageElement>;
-            "hosts-page": LocalJSX.HostsPage & JSXBase.HTMLAttributes<HTMLHostsPageElement>;
-            "input-control": LocalJSX.InputControl & JSXBase.HTMLAttributes<HTMLInputControlElement>;
-            "labeled-control": LocalJSX.LabeledControl & JSXBase.HTMLAttributes<HTMLLabeledControlElement>;
-            "login-page": LocalJSX.LoginPage & JSXBase.HTMLAttributes<HTMLLoginPageElement>;
-            "lookup-host-page": LocalJSX.LookupHostPage & JSXBase.HTMLAttributes<HTMLLookupHostPageElement>;
-            "privacy-policy": LocalJSX.PrivacyPolicy & JSXBase.HTMLAttributes<HTMLPrivacyPolicyElement>;
-            "reset-password-page": LocalJSX.ResetPasswordPage & JSXBase.HTMLAttributes<HTMLResetPasswordPageElement>;
-            "search-panel": LocalJSX.SearchPanel & JSXBase.HTMLAttributes<HTMLSearchPanelElement>;
-            "side-menu-entry": LocalJSX.SideMenuEntry & JSXBase.HTMLAttributes<HTMLSideMenuEntryElement>;
-            "taxonomy-search-page": LocalJSX.TaxonomySearchPage & JSXBase.HTMLAttributes<HTMLTaxonomySearchPageElement>;
-            "terms-of-service": LocalJSX.TermsOfService & JSXBase.HTMLAttributes<HTMLTermsOfServiceElement>;
-            "test-page": LocalJSX.TestPage & JSXBase.HTMLAttributes<HTMLTestPageElement>;
-            "unauthorized-header": LocalJSX.UnauthorizedHeader & JSXBase.HTMLAttributes<HTMLUnauthorizedHeaderElement>;
-            "user-profile-page": LocalJSX.UserProfilePage & JSXBase.HTMLAttributes<HTMLUserProfilePageElement>;
-            "view-host-page": LocalJSX.ViewHostPage & JSXBase.HTMLAttributes<HTMLViewHostPageElement>;
+            "admin-create-person-page": LocalJSX.IntrinsicElements["admin-create-person-page"] & JSXBase.HTMLAttributes<HTMLAdminCreatePersonPageElement>;
+            "admin-home-page": LocalJSX.IntrinsicElements["admin-home-page"] & JSXBase.HTMLAttributes<HTMLAdminHomePageElement>;
+            "admin-side-menu": LocalJSX.IntrinsicElements["admin-side-menu"] & JSXBase.HTMLAttributes<HTMLAdminSideMenuElement>;
+            "annotate-host-page": LocalJSX.IntrinsicElements["annotate-host-page"] & JSXBase.HTMLAttributes<HTMLAnnotateHostPageElement>;
+            "app-root": LocalJSX.IntrinsicElements["app-root"] & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "authorized-header": LocalJSX.IntrinsicElements["authorized-header"] & JSXBase.HTMLAttributes<HTMLAuthorizedHeaderElement>;
+            "bvbrc-button": LocalJSX.IntrinsicElements["bvbrc-button"] & JSXBase.HTMLAttributes<HTMLBvbrcButtonElement>;
+            "bvbrc-dialog": LocalJSX.IntrinsicElements["bvbrc-dialog"] & JSXBase.HTMLAttributes<HTMLBvbrcDialogElement>;
+            "bvbrc-ion-button": LocalJSX.IntrinsicElements["bvbrc-ion-button"] & JSXBase.HTMLAttributes<HTMLBvbrcIonButtonElement>;
+            "curated-words-page": LocalJSX.IntrinsicElements["curated-words-page"] & JSXBase.HTMLAttributes<HTMLCuratedWordsPageElement>;
+            "curation-tabs": LocalJSX.IntrinsicElements["curation-tabs"] & JSXBase.HTMLAttributes<HTMLCurationTabsElement>;
+            "curator-side-menu": LocalJSX.IntrinsicElements["curator-side-menu"] & JSXBase.HTMLAttributes<HTMLCuratorSideMenuElement>;
+            "home-page": LocalJSX.IntrinsicElements["home-page"] & JSXBase.HTMLAttributes<HTMLHomePageElement>;
+            "host-taxa-matches-page": LocalJSX.IntrinsicElements["host-taxa-matches-page"] & JSXBase.HTMLAttributes<HTMLHostTaxaMatchesPageElement>;
+            "hosts-page": LocalJSX.IntrinsicElements["hosts-page"] & JSXBase.HTMLAttributes<HTMLHostsPageElement>;
+            "input-control": LocalJSX.IntrinsicElements["input-control"] & JSXBase.HTMLAttributes<HTMLInputControlElement>;
+            "labeled-control": LocalJSX.IntrinsicElements["labeled-control"] & JSXBase.HTMLAttributes<HTMLLabeledControlElement>;
+            "login-page": LocalJSX.IntrinsicElements["login-page"] & JSXBase.HTMLAttributes<HTMLLoginPageElement>;
+            "lookup-host-page": LocalJSX.IntrinsicElements["lookup-host-page"] & JSXBase.HTMLAttributes<HTMLLookupHostPageElement>;
+            "reset-password-page": LocalJSX.IntrinsicElements["reset-password-page"] & JSXBase.HTMLAttributes<HTMLResetPasswordPageElement>;
+            "search-panel": LocalJSX.IntrinsicElements["search-panel"] & JSXBase.HTMLAttributes<HTMLSearchPanelElement>;
+            "side-menu-entry": LocalJSX.IntrinsicElements["side-menu-entry"] & JSXBase.HTMLAttributes<HTMLSideMenuEntryElement>;
+            "taxonomy-search-page": LocalJSX.IntrinsicElements["taxonomy-search-page"] & JSXBase.HTMLAttributes<HTMLTaxonomySearchPageElement>;
+            "user-profile-page": LocalJSX.IntrinsicElements["user-profile-page"] & JSXBase.HTMLAttributes<HTMLUserProfilePageElement>;
+            "view-host-page": LocalJSX.IntrinsicElements["view-host-page"] & JSXBase.HTMLAttributes<HTMLViewHostPageElement>;
         }
     }
 }

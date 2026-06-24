@@ -68,7 +68,5 @@ namespace HostAnnotation.DataProviders {
             return taxonNames;
         }
 
-
-
     }
 }

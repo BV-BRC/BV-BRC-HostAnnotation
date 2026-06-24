@@ -7,25 +7,28 @@ GO
 CREATE VIEW dbo.v_curation AS
 
 SELECT 
-	id,
-    alternate_text,
-    alternate_text_filtered,
-    is_valid,
-    search_text,
-    search_text_filtered,
-    taxonomy_db_tid,
-    taxonomy_id,
+	c.id,
+    c.search_text,
+    c.search_text_filtered,
+    c.alternate_text,
+    c.alternate_text_filtered,
+    
+    taxdb.term_key AS taxonomy_db,
+    c.taxonomy_db_tid,
+    c.taxonomy_id,
 
 	typeterm.term_key AS [type],
-    type_tid,
+    c.type_tid,
 
-    [uid],
-    created_by,
-    created_on,
-    validated_by,
-    validated_on
+    c.[uid],
+    c.is_valid,
+    c.created_by,
+    c.created_on,
+    c.validated_by,
+    c.validated_on
 
-FROM curation
+FROM curation c
 JOIN term typeterm ON typeterm.term_id = type_tid
+LEFT JOIN term taxdb ON taxdb.term_id = taxonomy_db_tid
 
 

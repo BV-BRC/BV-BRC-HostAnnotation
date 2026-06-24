@@ -124,6 +124,29 @@ namespace HostAnnotation.DataProviders {
         } */
 
 
+        // Update a host after it has been processed.
+        public void updateHostStatus(string? filteredText_, int hostID_, bool isValid_, string? messages_ = null) {
+
+            // If the host is invalid, the filtered text might be empty, but if it's valid, the filtered text shouldn't be empty.
+            if (isValid_ && string.IsNullOrEmpty(filteredText_)) { throw SmartException.create("Invalid filtered text"); }
+
+            var parameters = new List<SqlParameter>() {
+                Utils.createSqlParam("@filteredText", SqlDbType.NVarChar, filteredText_),
+                Utils.createSqlParam("@messages", SqlDbType.NVarChar, messages_)
+            };
+
+            var sql = new StringBuilder();
+            sql.AppendLine("UPDATE hosts SET ");
+            sql.AppendLine("filtered_text = @filteredText, ");
+            sql.AppendLine("is_processed = 1, ");
+            sql.AppendLine($"is_valid = {(isValid_ ? 1 : 0)}, ");
+            sql.AppendLine("messages = @messages, ");
+            sql.AppendLine("processed_on = SYSDATETIMEOFFSET() ");
+            sql.AppendLine($"WHERE id = {hostID_} ");
+
+            DbQueryManager.update(_dbConnectionString, sql.ToString(), parameters);
+        }
+
         public AnnotatedHost? getAnnotatedHost(int hostID_) {
 
             AnnotatedHost? annotatedHost = null;
@@ -138,7 +161,7 @@ namespace HostAnnotation.DataProviders {
             return annotatedHost;
         }
 
-        public List<HostQuery>? getHostsByGroup(int groupID_, int? maxHosts_, bool unprocessed_) {
+        public List<HostQuery>? getHostsByGroup(int groupID_, int? maxHosts_) {
 
             List<HostQuery>? hosts = null;
 
@@ -153,11 +176,8 @@ namespace HostAnnotation.DataProviders {
             sql.AppendLine("   text ");
             sql.AppendLine("FROM hosts ");
             sql.AppendLine($"WHERE group_id = {groupID_} ");
-            sql.AppendLine("AND is_valid = 1 ");
-
-            // If "unprocessed" is true, only retrieve unprocessed hosts.
-            if (unprocessed_) { sql.AppendLine("AND is_processed = 0 "); }
-
+            sql.AppendLine("AND is_processed = 0 ");
+            sql.AppendLine("AND (is_valid IS NULL OR is_valid = 0) ");
             sql.AppendLine("ORDER BY text ");
 
             UsefulObject.get<HostQuery>(_dbConnectionString, sql.ToString(), ref hosts);
@@ -253,6 +273,7 @@ namespace HostAnnotation.DataProviders {
             return annotatedHosts;
         }
 
+        /*
         // Update the host's "is valid" and (optional) "messages" attributes.
         public void updateIsValid(int hostID_, bool isValid_, string? messages_ = null) {
 
@@ -263,25 +284,9 @@ namespace HostAnnotation.DataProviders {
             var value = isValid_ ? 1 : 0;
 
             DbQueryManager.update(_dbConnectionString, $"UPDATE hosts SET is_valid = {value}, messages = @messages WHERE id = {hostID_} ", parameters);
-        }
+        }*/
 
-        public void updateProcessedHost(string filteredText_, int hostID_) {
 
-            // TODO: We should probably raise an exception if the filtered text is empty.
-            if (string.IsNullOrEmpty(filteredText_)) { return; }
-
-            var parameters = new List<SqlParameter>() {
-                Utils.createSqlParam("@filteredText", SqlDbType.NVarChar, filteredText_)
-            };
-
-            var sql = new StringBuilder();
-            sql.AppendLine("UPDATE hosts SET ");
-            sql.AppendLine("filtered_text = @filteredText, ");
-            sql.AppendLine("is_processed = 1, ");
-            sql.AppendLine("processed_on = SYSDATETIMEOFFSET() ");
-            sql.AppendLine($"WHERE id = {hostID_} ");
-
-            DbQueryManager.update(_dbConnectionString, sql.ToString(), parameters);
-        }
+        
     }
 }

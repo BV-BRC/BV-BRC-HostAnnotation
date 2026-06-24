@@ -3,6 +3,7 @@ using HostAnnotation.DataProviders;
 using HostAnnotation.Models;
 using HostAnnotation.Utilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 //using System.Text;
 //using static HostAnnotation.Common.Names;
@@ -20,12 +21,14 @@ namespace HostAnnotation.Services {
         // The data provider for annotation data.
         protected AnnotationDataProvider _dataProvider;
 
+        private readonly ILogger<AnnotationService> _logger;
+
         // A service for curated words.
         protected ICuratedWordService _wordService;
 
 
         // C-tor
-        public AnnotationService(IOptions<DatabaseOptions> dbOptions, ICuratedWordService wordService_) {
+        public AnnotationService(IOptions<DatabaseOptions> dbOptions, ILogger<AnnotationService> logger_, ICuratedWordService wordService_) {
 
             _dbOptions = dbOptions?.Value ?? throw new ArgumentNullException(nameof(dbOptions));
 
@@ -36,54 +39,63 @@ namespace HostAnnotation.Services {
             // Initialize the data provider
             _dataProvider = new AnnotationDataProvider(dbConnectionString);
 
+            // Update the log using this object.
+            _logger = logger_;
+
             // A service for curated words.
             _wordService = wordService_;
         }
 
 
-        // Annotate all hosts with this group ID. If "unprocessed" is true, only annotate hosts that 
-        // have not yet been processed. If a non-null max hosts value is provided, only that many hosts will
+        // Annotate all hosts with this group ID. If a non-null max hosts value is provided, only that many hosts will
         // be processed now. Otherwise, all valid hosts in the specified group (possibly only unprocessed)
         // will be annotated.
-        public int annotateHostGroup(int groupID_, int? maxHosts_, bool unprocessed_) {
+        public int annotateHostGroup(int groupID_, int? maxHosts_) {
 
             // This will be incremented when a host is successfully annotated.
-            int hostCount = 0;
+            int hostCount = 1;
 
             // Load curated words
             CuratedWords? curatedWords = _wordService.getCuratedWords();
             if (curatedWords == null) { throw new Exception("Invalid curated words"); }
 
-            List<HostQuery>? hosts = _dataProvider.getHostsByGroup(groupID_, maxHosts_, unprocessed_);
+            List<HostQuery>? hosts = _dataProvider.getHostsByGroup(groupID_, maxHosts_);
             if (hosts == null || hosts.Count < 1) {
-                var unprocessedText = unprocessed_ ? "unprocessed " : "";
-                throw SmartException.create($"No {unprocessedText}hosts found with group ID {groupID_}");
+                _logger.LogError($"All hosts with group ID {groupID_} have been processed");
+                throw SmartException.create($"All hosts with group ID {groupID_} have been processed");
             }
 
             foreach (var host in hosts) {
 
                 string? filteredText = null;
+                bool isValid = false;
 
                 // Remove the filtered characters from the host text.
                 filteredText = curatedWords.removeFilteredCharacters(host.text);
                 if (string.IsNullOrEmpty(filteredText)) {
-                    _dataProvider.updateIsValid(host.id, false, "Invalid text after removing filtered characters");
+                    _logger.LogError($"Error with '{host.text}' (id: {host.id}): Invalid text after removing filtered characters");
+                    _dataProvider.updateHostStatus(filteredText, host.id, isValid, "Invalid text after removing filtered characters");
                     continue;
                 }
 
                 // Replace any subspecies qualifiers with a comma delimiter.
                 filteredText = curatedWords.replaceSubspeciesQualifiers(filteredText);
                 if (string.IsNullOrEmpty(filteredText)) {
-                    _dataProvider.updateIsValid(host.id, false, "Invalid text after replacing subspecies qualifiers");
+                    _logger.LogError($"Error with '{host.text}' (id: {host.id}): Invalid text after replacing subspecies qualifiers");
+                    _dataProvider.updateHostStatus(filteredText, host.id, isValid, "Invalid text after replacing subspecies qualifiers");
                     continue;
                 }
 
                 // Remove age/date text from the hostname.
                 filteredText = Constants.AgeTextRegEx().Replace(filteredText, "").Trim();
                 if (string.IsNullOrEmpty(filteredText)) {
-                    _dataProvider.updateIsValid(host.id, false, "Invalid text after removing age/date text");
+                    _logger.LogError($"Error with '{host.text}' (id: {host.id}): Invalid text after removing age/date text");
+                    _dataProvider.updateHostStatus(filteredText, host.id, isValid, "Invalid text after removing age/date text");
                     continue;
                 }
+
+                // Consolidate whitespace
+                filteredText = filteredText.Replace("  ", " ");
 
                 // Remove leading and trailing commas.
                 if (filteredText.StartsWith(",")) { filteredText = filteredText.Substring(1); }
@@ -94,7 +106,8 @@ namespace HostAnnotation.Services {
 
                 // If no valid tokens were found, flag the host as invalid and return it.
                 if (tokens == null || tokens.Length < 1) {
-                    _dataProvider.updateIsValid(host.id, false, "Invalid text: no host tokens were found");
+                    _logger.LogError($"Error with '{host.text}' (id: {host.id}): Invalid text, no host tokens were found");
+                    _dataProvider.updateHostStatus(filteredText, host.id, isValid, "Invalid text: no host tokens were found");
                     continue;
                 }
 
@@ -148,8 +161,14 @@ namespace HostAnnotation.Services {
                 // Create the annotated host.
                 _dataProvider.createAnnotatedHost(host.id);
 
+                isValid = true;
+
                 // The host has been successfully processed.
-                _dataProvider.updateProcessedHost(filteredText, host.id);
+                // TODO: We should only update the host status to "valid" if a valid annotation was generated. If necesssary, this
+                // can be handled as a post process.
+                _dataProvider.updateHostStatus(filteredText, host.id, isValid);
+
+                _logger.LogInformation($"[{hostCount}] Successfully annotated '{host.text}' (host ID: {host.id})");
 
                 hostCount++;
             }

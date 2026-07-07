@@ -33,3 +33,8 @@ msbuild.wrn
 # dmd 
 Properties/launchSettings.json
 node_modules/
+
+# Stencil files
+host-annotation-app/.stencil/
+host-annotation-app/node-modules/
+host-annotation-app/www/
